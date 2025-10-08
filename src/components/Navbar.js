@@ -4,13 +4,7 @@ import { Flex, Image, Text } from "@chakra-ui/react";
 
 function Navbar() {
   return (
-    <Flex
-      as="nav"
-      px={9}
-      py={3}
-      align="center"
-      style={{ backgroundColor: "#333333" }}
-    >
+    <Flex as="nav">
       <Flex align="center" gap={3}>
         <Image
           src={LogoImage}
@@ -18,12 +12,7 @@ function Navbar() {
           boxSize="48px"
           objectFit="contain"
         />
-        <Text
-          as="h1"
-          fontSize="4xl"
-          fontWeight="bold"
-          style={{ color: "#FFFFFF" }}
-        >
+        <Text as="h1" fontSize="4xl" fontWeight="bold">
           GIPHY-CLONE
         </Text>
       </Flex>
