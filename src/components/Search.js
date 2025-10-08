@@ -16,24 +16,25 @@ export default function Search({ onSearch }) {
         value={q}
         onChange={(e) => setQ(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-        h="40px"
-        borderRightRadius="0"
+        h="60px"
+        // borderRightRadius="0"
         // optional: set consistent border color
-        borderColor="gray.200"
+        // borderColor="gray.200"
+        size="xl"
       />
 
       <IconButton
         aria-label="Search"
         onClick={handleSearch}
-        h="40px"
-        w="40px"
+        h="60px"
+        w="60px"
         minW="40px"
         borderLeftRadius="0"
         // remove the left border so the seam is flush (no double border)
         borderLeft="0"
         // match the rest of the border so it looks like one control
         border="1px solid"
-        borderColor="gray.200"
+        // borderColor="gray.200"
         bg="#FF69B4"
         _hover={{ bg: "#ff4da6" }}
         // remove boxShadow if you want perfectly flush edges
