@@ -4,7 +4,7 @@ import LogoImage from "../images/logo.png";
 function Navbar() {
   return (
     <div>
-      <nav className="flex items-center justify-between p-4 ">
+      <nav className="flex items-center justify-between p-2 ">
         <div className="flex items-center">
           <img src={LogoImage} alt="Logo" className="h-12 w-12 mr-2" />
           <span className="text-white font-bold text-4xl">GIPHY-Lite</span>
