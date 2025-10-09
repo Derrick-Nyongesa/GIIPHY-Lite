@@ -7,7 +7,7 @@ function Navbar() {
       <nav className="flex items-center justify-between p-4 ">
         <div className="flex items-center">
           <img src={LogoImage} alt="Logo" className="h-12 w-12 mr-2" />
-          <span className="text-white font-bold text-4xl">GIPHY-Clone</span>
+          <span className="text-white font-bold text-4xl">GIPHY-Lite</span>
         </div>
         <div>
           {/* <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
