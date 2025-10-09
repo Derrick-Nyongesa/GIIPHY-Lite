@@ -32,7 +32,7 @@ function Home() {
           <Navbar />
           <Search />
 
-          <div className="flex items-center justify-between mt-6 mb-4">
+          <div className="flex items-center justify-between mt-3 mb-4">
             <div className="flex items-center">
               <img src={ArrowImage} alt="Logo" className="h-9 w-9 mr-2" />
               <span className="text-white font-bold text-xl">Trending Now</span>
