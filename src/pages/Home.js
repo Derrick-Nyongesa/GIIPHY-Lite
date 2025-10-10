@@ -4,11 +4,6 @@ import Search from "../components/Search";
 import ArrowImage from "../images/arrow.png";
 
 const dummyData = {
-  GIFs: [
-    { id: 1, title: "Funny Cat", description: "A cat doing a silly dance" },
-    { id: 2, title: "Happy Dance", description: "Looping celebration" },
-    { id: 3, title: "Surprised Pikachu", description: "Classic reaction" },
-  ],
   Stickers: [
     { id: 1, title: "Love Sticker", description: "Heart sticker" },
     { id: 2, title: "Thumbs Up", description: "Approval sticker" },
