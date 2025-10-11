@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 import Search from "../components/Search";
 import { useParams } from "react-router-dom";
@@ -9,6 +9,20 @@ function Gif() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const API_KEY = process.env.REACT_APP_GIPHY_API_KEY;
+
+  // overlay states
+  const [showCopied, setShowCopied] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
+
+  const timersRef = useRef([]);
+
+  useEffect(() => {
+    return () => {
+      // cleanup timers on unmount
+      timersRef.current.forEach((t) => clearTimeout(t));
+      timersRef.current = [];
+    };
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -79,6 +93,78 @@ function Gif() {
   const username = user.username ? `@${user.username}` : "";
   const avatar = user.avatar_url || "";
   const description = user.description || "";
+
+  // Copy to clipboard handler
+  const handleCopy = async () => {
+    const textToCopy = gif.url || imageUrl || window.location.href;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        // fallback for older browsers
+        const textarea = document.createElement("textarea");
+        textarea.value = textToCopy;
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+
+      setShowCopied(true);
+      // clear any existing timers and set new hide timer
+      timersRef.current.forEach((t) => clearTimeout(t));
+      timersRef.current = [
+        setTimeout(() => {
+          setShowCopied(false);
+          timersRef.current = [];
+        }, 2000),
+      ];
+    } catch (err) {
+      console.error("Copy failed:", err);
+    }
+  };
+
+  // Download handler
+  const handleDownload = async () => {
+    const downloadUrl = imageUrl || gif.images?.fixed_width?.url || gif.url;
+    if (!downloadUrl) {
+      console.error("No download URL available");
+      return;
+    }
+
+    try {
+      const res = await fetch(downloadUrl, { mode: "cors" });
+      if (!res.ok) throw new Error("Failed to fetch file for download");
+      const blob = await res.blob();
+
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+
+      // Infer filename; if gif id available use it
+      const filename = `${id || "gif"}.gif`;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      // release object URL after a bit
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
+
+      // show saved overlay
+      setShowSaved(true);
+      timersRef.current.forEach((t) => clearTimeout(t));
+      timersRef.current = [
+        setTimeout(() => {
+          setShowSaved(false);
+          timersRef.current = [];
+        }, 2000),
+      ];
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
+  };
 
   return (
     <>
@@ -154,8 +240,11 @@ function Gif() {
 
               {/* Right: actions (narrow) */}
               <div className="w-full md:w-1/5 flex flex-col items-start gap-3">
-                <div className="hover:text-green-400 transition-colors duration-150 cursor-default">
-                  {/* UI only, no copy logic per your note */}
+                <button
+                  onClick={handleCopy}
+                  className="flex items-center px-2 py-1 hover:text-green-400 transition-colors duration-150 cursor-pointer focus:outline-none"
+                  aria-label="Copy GIF link"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="inline-block align-middle mr-2 w-5 h-5"
@@ -169,10 +258,13 @@ function Gif() {
                     <path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07 0 5 5 0 0 1 0-7.07l8.48-8.48a3.5 3.5 0 0 1 4.95 4.95l-8.48 8.48a1.5 1.5 0 0 1-2.12 0 1.5 1.5 0 0 1 0-2.12l7.07-7.07" />
                   </svg>
                   <span>Copy Link</span>
-                </div>
+                </button>
 
-                <div className="mt-2 hover:text-indigo-500 transition-colors duration-150 cursor-default">
-                  {/* UI only, no download logic per your note */}
+                <button
+                  onClick={handleDownload}
+                  className="flex items-center px-2 py-1 mt-1 hover:text-indigo-500 transition-colors duration-150 cursor-pointer focus:outline-none"
+                  aria-label="Download GIF"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="inline-block align-middle mr-2 w-5 h-5"
@@ -188,7 +280,7 @@ function Gif() {
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                   <span>Download</span>
-                </div>
+                </button>
               </div>
             </div>
 
