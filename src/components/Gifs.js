@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Gifs() {
   const [gifs, setGifs] = useState([]);
@@ -6,7 +7,10 @@ function Gifs() {
   const LIMIT = 12;
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+
   const API_KEY = process.env.REACT_APP_GIPHY_API_KEY;
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadGifs();
@@ -50,7 +54,16 @@ function Gifs() {
         {gifs.map((gif) => (
           <div
             key={gif.id}
-            className="rounded-md overflow-hidden bg-gray-800 flex items-center justify-center"
+            // clickable container
+            role="button"
+            tabIndex={0}
+            onClick={() => navigate(`/gif/${gif.id}`)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ")
+                navigate(`/gif/${gif.id}`);
+            }}
+            className="relative rounded-md overflow-hidden bg-gray-800 flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
+            aria-label={`Open gif ${gif.title || gif.id}`}
           >
             {gif.url ? (
               <img
@@ -60,8 +73,17 @@ function Gifs() {
                 loading="lazy"
               />
             ) : (
-              <div className="text-gray-400">No preview</div>
+              <div className="text-gray-400 p-4">No preview</div>
             )}
+
+            {/* Hover overlay: show user display_name */}
+            <div className="absolute inset-0 flex items-end">
+              <div className="w-full bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 hover:opacity-100 transition-opacity duration-150">
+                <div className="text-sm text-white font-medium truncate">
+                  {gif.user_display_name || gif.username || "Unknown"}
+                </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>

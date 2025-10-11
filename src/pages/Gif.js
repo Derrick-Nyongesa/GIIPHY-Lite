@@ -4,6 +4,82 @@ import Search from "../components/Search";
 import { useParams } from "react-router-dom";
 
 function Gif() {
+  const { id } = useParams();
+  const [gif, setGif] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const API_KEY = process.env.REACT_APP_GIPHY_API_KEY;
+
+  useEffect(() => {
+    if (!id) return;
+    const loadGif = async () => {
+      if (!API_KEY) {
+        setError("Missing GIPHY API key");
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `https://api.giphy.com/v1/gifs/${id}?api_key=${API_KEY}&rating=g`
+        );
+        if (!res.ok) throw new Error("Failed to fetch gif");
+        const json = await res.json();
+        setGif(json.data || null);
+      } catch (err) {
+        console.error("Error fetching gif:", err);
+        setError("Failed to load GIF");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadGif();
+  }, [id, API_KEY]);
+
+  if (loading) {
+    return (
+      <div className="p-6 text-center text-gray-300">
+        <Navbar />
+        <Search />
+        <div>Loading GIF...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-400">
+        <Navbar />
+        <Search />
+        <div>{error}</div>
+      </div>
+    );
+  }
+
+  if (!gif) {
+    return (
+      <div className="p-6 text-center text-gray-300">
+        <Navbar />
+        <Search />
+        <div>GIF not found</div>
+      </div>
+    );
+  }
+
+  // pick a good image URL (original preferred)
+  const imageUrl =
+    gif.images?.original?.url ||
+    gif.images?.fixed_width?.url ||
+    gif.images?.downsized?.url ||
+    "";
+
+  const user = gif.user || {};
+  const displayName = user.display_name || user.username || "Unknown";
+  const username = user.username ? `@${user.username}` : "";
+  const avatar = user.avatar_url || "";
+  const description = user.description || "";
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -13,29 +89,52 @@ function Gif() {
           <Navbar />
           <Search />
 
-          <div>
-            <div className="flex justify-between mt-3 mb-4 gap-9">
-              <div>
-                {/* User */}
+          <div className="p-4">
+            <div className="flex flex-col md:flex-row justify-between gap-6">
+              {/* Left: user info */}
+              <div className="flex items-start gap-4">
                 <div>
-                  <div className="flex justify-between gap-9">
-                    <div>
-                      <img src="" alt="avatar_url" />
+                  {avatar ? (
+                    <img
+                      src={avatar}
+                      alt={`${displayName} avatar`}
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center text-sm text-gray-300">
+                      {displayName.charAt(0)}
                     </div>
-                    <div>
-                      <h3>display_name</h3>
-                      <h4>@username</h4>
-                      <p>description</p>
-                    </div>
-                  </div>
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-white text-lg font-semibold">
+                    {displayName}
+                  </h3>
+                  {username && <h4 className="text-gray-400">{username}</h4>}
+                  {description && (
+                    <p className="text-gray-300 mt-2">{description}</p>
+                  )}
                 </div>
               </div>
-              <div>
-                <img src="" alt="gif url" />
-                <h2>Title</h2>
+
+              {/* Center: gif */}
+              <div className="flex-1">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={gif.title || "gif"}
+                    className="mx-auto rounded-md max-h-[480px] w-auto"
+                  />
+                ) : (
+                  <div className="text-gray-400">No image available</div>
+                )}
+                <h2 className="text-white mt-3">{gif.title || "Untitled"}</h2>
               </div>
-              <div>
-                <div className=" hover:text-green-400 transition-colors duration-150 cursor-pointer">
+
+              {/* Right: actions (UI-only for now) */}
+              <div className="flex flex-col items-start gap-3">
+                <div className=" hover:text-green-400 transition-colors duration-150 cursor-default">
+                  {/* UI only, no copy logic per your note */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="inline-block align-middle mr-2 w-5 h-5"
@@ -51,7 +150,8 @@ function Gif() {
                   <span>Copy Link</span>
                 </div>
 
-                <div className="mt-2  hover:text-indigo-500 transition-colors duration-150 cursor-pointer">
+                <div className="mt-2  hover:text-indigo-500 transition-colors duration-150 cursor-default">
+                  {/* UI only, no download logic per your note */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="inline-block align-middle mr-2 w-5 h-5"
@@ -68,6 +168,27 @@ function Gif() {
                   </svg>
                   <span>Download</span>
                 </div>
+              </div>
+            </div>
+
+            {/* optional extra details */}
+            <div className="mt-6 text-gray-400">
+              <div>
+                <strong>Giphy URL:</strong>{" "}
+                <a
+                  href={gif.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline"
+                >
+                  View on GIPHY
+                </a>
+              </div>
+              <div className="mt-2">
+                <strong>Rating:</strong> {gif.rating || "N/A"}
+              </div>
+              <div className="mt-2">
+                <strong>Imported:</strong> {gif.import_datetime || "N/A"}
               </div>
             </div>
           </div>
