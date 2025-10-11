@@ -32,9 +32,17 @@ function Gifs() {
       const newGifs = (json.data || []).map((g) => ({
         id: g.id,
         title: g.title,
-        url: g.images?.fixed_width?.url || g.images?.original?.url || "",
+        url:
+          g.images?.fixed_width?.url ||
+          g.images?.fixed_width_small?.url ||
+          g.images?.original?.url ||
+          "",
         width: g.images?.fixed_width?.width,
         height: g.images?.fixed_width?.height,
+        // user info (may be absent) so overlay can show it
+        username: g.username || g.user?.username || "",
+        user_display_name: g.user?.display_name || "",
+        user_avatar: g.user?.avatar_url || "",
       }));
 
       setGifs((prev) => [...prev, ...newGifs]);
@@ -48,13 +56,13 @@ function Gifs() {
       setLoading(false);
     }
   };
+
   return (
     <>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {gifs.map((gif) => (
           <div
             key={gif.id}
-            // clickable container
             role="button"
             tabIndex={0}
             onClick={() => navigate(`/gif/${gif.id}`)}
@@ -62,7 +70,7 @@ function Gifs() {
               if (e.key === "Enter" || e.key === " ")
                 navigate(`/gif/${gif.id}`);
             }}
-            className="relative rounded-md overflow-hidden bg-gray-800 flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="group relative rounded-md overflow-hidden bg-gray-800 flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
             aria-label={`Open gif ${gif.title || gif.id}`}
           >
             {gif.url ? (
@@ -76,9 +84,9 @@ function Gifs() {
               <div className="text-gray-400 p-4">No preview</div>
             )}
 
-            {/* Hover overlay: show user display_name */}
-            <div className="absolute inset-0 flex items-end">
-              <div className="w-full bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 hover:opacity-100 transition-opacity duration-150">
+            {/* Hover overlay: show user display_name (use group-hover on parent) */}
+            <div className="absolute inset-0 flex items-end pointer-events-none">
+              <div className="w-full bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                 <div className="text-sm text-white font-medium truncate">
                   {gif.user_display_name || gif.username || "Unknown"}
                 </div>
