@@ -83,57 +83,78 @@ function Gif() {
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="hidden md:block"></div>
+        <div className="hidden md:block" />
 
         <div className="col-span-1 md:col-span-3 flex flex-col ">
           <Navbar />
           <Search />
 
           <div className="p-4">
-            <div className="flex flex-col md:flex-row justify-between gap-6">
-              {/* Left: user info */}
-              <div className="flex items-start gap-4">
-                <div>
-                  {avatar ? (
-                    <img
-                      src={avatar}
-                      alt={`${displayName} avatar`}
-                      className="w-16 h-16 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center text-sm text-gray-300">
-                      {displayName.charAt(0)}
-                    </div>
-                  )}
+            {/* layout: left user, center gif (bigger & fixed max width), right actions */}
+            <div className="flex flex-col md:flex-row justify-between items-start gap-6">
+              {/* Left: user info (narrow) */}
+              <div className="w-full md:w-1/5 flex flex-col gap-3">
+                {/* Top row: avatar + display name / username */}
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="flex-shrink-0">
+                    {avatar ? (
+                      <img
+                        src={avatar}
+                        alt={`${displayName} avatar`}
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center text-sm text-gray-300">
+                        {displayName.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="min-w-0">
+                    <h3 className="text-white text-lg font-semibold truncate">
+                      {displayName}
+                    </h3>
+                    {username && (
+                      <h4 className="text-gray-400 text-sm truncate">
+                        {username}
+                      </h4>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-white text-lg font-semibold">
-                    {displayName}
-                  </h3>
-                  {username && <h4 className="text-gray-400">{username}</h4>}
-                  {description && (
-                    <p className="text-gray-300 mt-2">{description}</p>
-                  )}
-                </div>
+
+                {/* Description: placed below the avatar + names */}
+                {description && (
+                  <p
+                    className="text-gray-300 text-sm break-words whitespace-normal max-w-full"
+                    style={{ wordWrap: "break-word" }}
+                  >
+                    {description}
+                  </p>
+                )}
               </div>
 
-              {/* Center: gif */}
-              <div className="flex-1">
+              {/* Center: gif (larger, consistent max width) */}
+              <div className="w-full md:w-3/5 flex flex-col items-center">
                 {imageUrl ? (
+                  // full responsive width but limited to a consistent max width
                   <img
                     src={imageUrl}
                     alt={gif.title || "gif"}
-                    className="mx-auto rounded-md max-h-[480px] w-auto"
+                    className="rounded-md w-full max-w-[760px] h-auto object-contain"
                   />
                 ) : (
                   <div className="text-gray-400">No image available</div>
                 )}
-                <h2 className="text-white mt-3">{gif.title || "Untitled"}</h2>
+
+                {/* Title directly below the gif, centered */}
+                <h2 className="text-white mt-3 text-center text-lg font-semibold break-words max-w-[760px]">
+                  {gif.title || "Untitled"}
+                </h2>
               </div>
 
-              {/* Right: actions (UI-only for now) */}
-              <div className="flex flex-col items-start gap-3">
-                <div className=" hover:text-green-400 transition-colors duration-150 cursor-default">
+              {/* Right: actions (narrow) */}
+              <div className="w-full md:w-1/5 flex flex-col items-start gap-3">
+                <div className="hover:text-green-400 transition-colors duration-150 cursor-default">
                   {/* UI only, no copy logic per your note */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -150,7 +171,7 @@ function Gif() {
                   <span>Copy Link</span>
                 </div>
 
-                <div className="mt-2  hover:text-indigo-500 transition-colors duration-150 cursor-default">
+                <div className="mt-2 hover:text-indigo-500 transition-colors duration-150 cursor-default">
                   {/* UI only, no download logic per your note */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
