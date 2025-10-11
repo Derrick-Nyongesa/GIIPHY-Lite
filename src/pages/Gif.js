@@ -14,13 +14,15 @@ function Gif() {
   const [showCopied, setShowCopied] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
 
-  const timersRef = useRef([]);
+  // separate timers so they don't clobber each other
+  const copiedTimerRef = useRef(null);
+  const savedTimerRef = useRef(null);
 
   useEffect(() => {
     return () => {
       // cleanup timers on unmount
-      timersRef.current.forEach((t) => clearTimeout(t));
-      timersRef.current = [];
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
     };
   }, []);
 
@@ -94,9 +96,12 @@ function Gif() {
   const avatar = user.avatar_url || "";
   const description = user.description || "";
 
-  // Copy to clipboard handler
+  // Use same download URL in both copy and download
+  const downloadUrl = imageUrl || gif.images?.fixed_width?.url || gif.url || "";
+
+  // Copy to clipboard handler — copies the actual media URL (downloadUrl)
   const handleCopy = async () => {
-    const textToCopy = gif.url || imageUrl || window.location.href;
+    const textToCopy = downloadUrl || window.location.href;
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(textToCopy);
@@ -112,23 +117,20 @@ function Gif() {
         document.body.removeChild(textarea);
       }
 
+      // show green overlay for 2s
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
       setShowCopied(true);
-      // clear any existing timers and set new hide timer
-      timersRef.current.forEach((t) => clearTimeout(t));
-      timersRef.current = [
-        setTimeout(() => {
-          setShowCopied(false);
-          timersRef.current = [];
-        }, 2000),
-      ];
+      copiedTimerRef.current = setTimeout(() => {
+        setShowCopied(false);
+        copiedTimerRef.current = null;
+      }, 2000);
     } catch (err) {
       console.error("Copy failed:", err);
     }
   };
 
-  // Download handler
+  // Download handler (fetch blob and save)
   const handleDownload = async () => {
-    const downloadUrl = imageUrl || gif.images?.fixed_width?.url || gif.url;
     if (!downloadUrl) {
       console.error("No download URL available");
       return;
@@ -143,8 +145,15 @@ function Gif() {
       const a = document.createElement("a");
       a.href = blobUrl;
 
-      // Infer filename; if gif id available use it
-      const filename = `${id || "gif"}.gif`;
+      // Use id or title-safe filename
+      const safeTitle =
+        (gif.title || id || "gif")
+          .replace(/[^a-z0-9_\-\.()\s]/gi, "")
+          .trim()
+          .slice(0, 120) ||
+        id ||
+        "gif";
+      const filename = `${safeTitle}.gif`;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
@@ -152,15 +161,13 @@ function Gif() {
       // release object URL after a bit
       setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
 
-      // show saved overlay
+      // show blue overlay for 2s
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
       setShowSaved(true);
-      timersRef.current.forEach((t) => clearTimeout(t));
-      timersRef.current = [
-        setTimeout(() => {
-          setShowSaved(false);
-          timersRef.current = [];
-        }, 2000),
-      ];
+      savedTimerRef.current = setTimeout(() => {
+        setShowSaved(false);
+        savedTimerRef.current = null;
+      }, 2000);
     } catch (err) {
       console.error("Download failed:", err);
     }
@@ -221,16 +228,36 @@ function Gif() {
 
               {/* Center: gif (larger, consistent max width) */}
               <div className="w-full md:w-3/5 flex flex-col items-center">
-                {imageUrl ? (
-                  // full responsive width but limited to a consistent max width
-                  <img
-                    src={imageUrl}
-                    alt={gif.title || "gif"}
-                    className="rounded-md w-full max-w-[760px] h-auto object-contain"
-                  />
-                ) : (
-                  <div className="text-gray-400">No image available</div>
-                )}
+                {/* wrapper relative so overlays can sit on top */}
+                <div className="relative rounded-md w-full max-w-[760px]">
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt={gif.title || "gif"}
+                      className="rounded-md w-full h-auto object-contain"
+                    />
+                  ) : (
+                    <div className="text-gray-400">No image available</div>
+                  )}
+
+                  {/* Copied overlay (green) */}
+                  {showCopied && (
+                    <div className="absolute inset-0 flex items-center justify-center rounded-md z-50 pointer-events-none">
+                      <div className="bg-green-500 px-4 py-2 rounded text-white font-medium text-sm">
+                        Copied to Clipboard!
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Saved overlay (blue/indigo) */}
+                  {showSaved && (
+                    <div className="absolute inset-0 flex items-center justify-center rounded-md z-50 pointer-events-none">
+                      <div className="bg-indigo-600 px-4 py-2 rounded text-white font-medium text-sm">
+                        Saved on Downloads!
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* Title directly below the gif, centered */}
                 <h2 className="text-white mt-3 text-center text-lg font-semibold break-words max-w-[760px]">
