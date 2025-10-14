@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Stickers() {
   const [stickers, setStickers] = useState([]);
@@ -7,6 +8,8 @@ function Stickers() {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const API_KEY = process.env.REACT_APP_GIPHY_API_KEY;
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadStickers();
@@ -28,9 +31,17 @@ function Stickers() {
       const newStickers = (json.data || []).map((s) => ({
         id: s.id,
         title: s.title,
-        url: s.images?.fixed_width?.url || s.images?.original?.url || "",
+        url:
+          s.images?.fixed_width?.url ||
+          s.images?.fixed_width_small?.url ||
+          s.images?.original?.url ||
+          "",
         width: s.images?.fixed_width?.width,
         height: s.images?.fixed_width?.height,
+        // user info (may be absent) so overlay can show it
+        username: s.username || s.user?.username || "",
+        user_display_name: s.user?.display_name || "",
+        user_avatar: s.user?.avatar_url || "",
       }));
 
       setStickers((prev) => [...prev, ...newStickers]);
@@ -50,7 +61,15 @@ function Stickers() {
         {stickers.map((sticker) => (
           <div
             key={sticker.id}
-            className="rounded-md overflow-hidden bg-gray-800 flex items-center justify-center"
+            role="button"
+            tabIndex={0}
+            onClick={() => navigate(`/sticker/${sticker.id}`)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ")
+                navigate(`/sticker/${sticker.id}`);
+            }}
+            className="group relative rounded-md overflow-hidden bg-gray-800 flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
+            aria-label={`Open sticker ${sticker.title || sticker.id}`}
           >
             {sticker.url ? (
               <img
@@ -62,6 +81,14 @@ function Stickers() {
             ) : (
               <div className="text-gray-400">No preview</div>
             )}
+            {/* Hover overlay: show user display_name (use group-hover on parent) */}
+            <div className="absolute inset-0 flex items-end pointer-events-none">
+              <div className="w-full bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                <div className="text-sm text-white font-medium truncate">
+                  {sticker.user_display_name || sticker.username || "Unknown"}
+                </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -73,7 +100,7 @@ function Stickers() {
             disabled={loading}
             className="px-6 py-2 bg-purple-600 text-white rounded-md hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? "Loading..." : "Load more Stickers"}
+            {loading ? "Loadins..." : "Load more Stickers"}
           </button>
         ) : (
           <div className="text-gray-400">No more Stickers</div>
