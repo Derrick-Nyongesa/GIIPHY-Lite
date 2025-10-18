@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 import Search from "../components/Search";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 function Sticker() {
   const { id } = useParams();
@@ -9,6 +9,8 @@ function Sticker() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const API_KEY = process.env.REACT_APP_GIPHY_API_KEY;
+
+  const navigate = useNavigate();
 
   // overlay states
   const [showCopied, setShowCopied] = useState(false);
@@ -174,6 +176,13 @@ function Sticker() {
     }
   };
 
+  // navigate to channel page
+  const goToChannel = () => {
+    if (!username) return;
+    // navigate using the raw username (no @)
+    navigate(`/channel/${username}`);
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -189,7 +198,18 @@ function Sticker() {
               {/* Left: user info (narrow) */}
               <div className="w-full md:w-1/5 flex flex-col gap-3">
                 {/* Top row: avatar + display name / username */}
-                <div className="flex items-center gap-4 min-w-0">
+                <div
+                  role={username ? "button" : undefined}
+                  tabIndex={username ? 0 : undefined}
+                  onClick={goToChannel}
+                  onKeyDown={(e) => {
+                    if (username && (e.key === "Enter" || e.key === " "))
+                      goToChannel();
+                  }}
+                  className={`flex items-center gap-4 min-w-0 ${
+                    username ? "cursor-pointer hover:opacity-90" : ""
+                  }`}
+                >
                   <div className="flex-shrink-0">
                     {avatar ? (
                       <img
