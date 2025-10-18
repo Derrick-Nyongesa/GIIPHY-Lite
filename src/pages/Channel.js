@@ -121,119 +121,126 @@ function Channel() {
   }
 
   return (
-    <div className="p-4">
-      <Navbar />
-      <Search />
-
-      <div className="max-w-5xl mx-auto mt-6">
-        {/* Top: user info once */}
-        <div className="flex items-center gap-4 bg-gray-800 p-4 rounded-md">
-          {userInfo ? (
-            <>
-              <div className="flex-shrink-0">
-                {userInfo.avatar_url ? (
-                  <img
-                    src={userInfo.avatar_url}
-                    alt={`${userInfo.display_name} avatar`}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center text-sm text-gray-300">
-                    {userInfo.display_name?.charAt(0) || "U"}
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="hidden md:block" />
+        <div className="col-span-1 md:col-span-3 flex flex-col ">
+          <Navbar />
+          <Search />
+          <div className="max-w-5xl mx-auto mt-6">
+            {/* Top: user info once */}
+            <div className="flex items-center gap-4 bg-gray-800 p-4 rounded-md">
+              {userInfo ? (
+                <>
+                  <div className="flex-shrink-0">
+                    {userInfo.avatar_url ? (
+                      <img
+                        src={userInfo.avatar_url}
+                        alt={`${userInfo.display_name} avatar`}
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center text-sm text-gray-300">
+                        {userInfo.display_name?.charAt(0) || "U"}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              <div className="min-w-0">
-                <h2 className="text-white text-lg font-semibold truncate">
-                  {userInfo.display_name}
-                </h2>
-                <div className="text-gray-400 text-sm truncate">
-                  @{userInfo.username}
-                </div>
-                {userInfo.description && (
-                  <p className="text-gray-300 text-sm mt-2">
-                    {userInfo.description}
-                  </p>
-                )}
-              </div>
+                  <div className="min-w-0">
+                    <h2 className="text-white text-lg font-semibold truncate">
+                      {userInfo.display_name}
+                    </h2>
+                    <div className="text-gray-400 text-sm truncate">
+                      @{userInfo.username}
+                    </div>
+                    {userInfo.description && (
+                      <p className="text-gray-300 text-sm mt-2">
+                        {userInfo.description}
+                      </p>
+                    )}
+                  </div>
 
-              <div className="ml-auto">
-                <a
-                  href={userInfo.profile_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm underline text-gray-300"
-                >
-                  View on GIPHY
-                </a>
-              </div>
-            </>
-          ) : (
-            <div className="text-gray-400">No user information available</div>
-          )}
-        </div>
-
-        {/* gifs grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-6">
-          {gifs.length === 0 && !loading && (
-            <div className="col-span-full text-center text-gray-400">
-              No GIFs found for @{channelName}
-            </div>
-          )}
-
-          {gifs.map((gif) => (
-            <div
-              key={gif.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => onGifClick(gif.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") onGifClick(gif.id);
-              }}
-              className="group relative rounded-md overflow-hidden bg-gray-800 flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
-              aria-label={`Open gif ${gif.title || gif.id}`}
-            >
-              {gif.url ? (
-                <img
-                  src={gif.url}
-                  alt={gif.title || "gif"}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
+                  <div className="ml-auto">
+                    <a
+                      href={userInfo.profile_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm underline text-gray-300"
+                    >
+                      View on GIPHY
+                    </a>
+                  </div>
+                </>
               ) : (
-                <div className="text-gray-400 p-4">No preview</div>
+                <div className="text-gray-400">
+                  No user information available
+                </div>
+              )}
+            </div>
+
+            {/* gifs grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-6">
+              {gifs.length === 0 && !loading && (
+                <div className="col-span-full text-center text-gray-400">
+                  No GIFs found for @{channelName}
+                </div>
               )}
 
-              {/* Hover overlay: show title */}
-              <div className="absolute inset-0 flex items-end pointer-events-none">
-                <div className="w-full bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                  <div className="text-sm text-white font-medium truncate">
-                    {gif.title || "Untitled"}
+              {gifs.map((gif) => (
+                <div
+                  key={gif.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onGifClick(gif.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") onGifClick(gif.id);
+                  }}
+                  className="group relative rounded-md overflow-hidden bg-gray-800 flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  aria-label={`Open gif ${gif.title || gif.id}`}
+                >
+                  {gif.url ? (
+                    <img
+                      src={gif.url}
+                      alt={gif.title || "gif"}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="text-gray-400 p-4">No preview</div>
+                  )}
+
+                  {/* Hover overlay: show title */}
+                  <div className="absolute inset-0 flex items-end pointer-events-none">
+                    <div className="w-full bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                      <div className="text-sm text-white font-medium truncate">
+                        {gif.title || "Untitled"}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Load more */}
-        <div className="flex justify-center mt-6 mb-6">
-          {error && <div className="text-red-400 mr-4">{error}</div>}
-          {hasMore ? (
-            <button
-              onClick={loadMore}
-              disabled={loading}
-              className="px-6 py-2 bg-purple-600 text-white rounded-md hover:opacity-90 disabled:opacity-50"
-            >
-              {loading ? "Loading..." : "Load more GIFs"}
-            </button>
-          ) : (
-            <div className="text-gray-400">No more GIFs</div>
-          )}
+            {/* Load more */}
+            <div className="flex justify-center mt-6 mb-6">
+              {error && <div className="text-red-400 mr-4">{error}</div>}
+              {hasMore ? (
+                <button
+                  onClick={loadMore}
+                  disabled={loading}
+                  className="px-6 py-2 bg-purple-600 text-white rounded-md hover:opacity-90 disabled:opacity-50"
+                >
+                  {loading ? "Loading..." : "Load more GIFs"}
+                </button>
+              ) : (
+                <div className="text-gray-400">No more GIFs</div>
+              )}
+            </div>
+          </div>
         </div>
+        <div className="hidden md:block" />
       </div>
-    </div>
+    </>
   );
 }
 
