@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Search from "../components/Search";
@@ -11,120 +11,253 @@ function Channel() {
 
   const [userInfo, setUserInfo] = useState(null); // { avatar_url, display_name, username, profile_url, banner_url, description? }
   const [gifs, setGifs] = useState([]);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [gifOffset, setGifOffset] = useState(0);
+  const [gifHasMore, setGifHasMore] = useState(true);
+  const [gifLoading, setGifLoading] = useState(false);
+  const [stickers, setStickers] = useState([]);
+  const [stickerOffset, setStickerOffset] = useState(0);
+  const [stickerHasMore, setStickerHasMore] = useState(true);
+  const [stickerLoading, setStickerLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const tabs = ["GIFs", "Stickers"];
   const [active, setActive] = useState("GIFs"); // GIFs default
 
-  const renderContent = () => {
-    switch (active) {
-      case "GIFs":
-        // display gifs grid
-        return;
-      case "Stickers":
-        // display stickers grid
-        return;
-      default:
-        // display gifs grid
-        return;
+  const fetchUrlForActive = (q, limit, offset) => {
+    const encodedQ = encodeURIComponent(q);
+    if (active === "Stickers") {
+      return `https://api.giphy.com/v1/stickers/search?api_key=${API_KEY}&q=${encodedQ}&limit=${limit}&offset=${offset}&rating=g&lang=en&bundle=messaging_non_clips`;
     }
+    // default GIFs
+    return `https://api.giphy.com/v1/gifs/search?api_key=${API_KEY}&q=${encodedQ}&limit=${limit}&offset=${offset}&rating=g&lang=en`;
   };
 
+  const loadMore = useCallback(
+    async (opts = {}) => {
+      // opts can override which tab to load (useful on initial load)
+      const target = opts.tab || active;
+
+      if (!API_KEY) {
+        setError("Missing GIPHY API key");
+        setInitialLoading(false);
+        setGifLoading(false);
+        setStickerLoading(false);
+        setGifHasMore(false);
+        setStickerHasMore(false);
+        return;
+      }
+
+      if (!channelName) {
+        setError("No channel specified");
+        setInitialLoading(false);
+        setGifLoading(false);
+        setStickerLoading(false);
+        return;
+      }
+
+      // determine paging state for target
+      const isStickers = target === "Stickers";
+      if (isStickers && !stickerHasMore) return;
+      if (!isStickers && !gifHasMore) return;
+
+      // set loading flags
+      if (isStickers) setStickerLoading(true);
+      else setGifLoading(true);
+
+      try {
+        const q = `${channelName}`; // channelName is raw username
+        const offset = isStickers ? stickerOffset : gifOffset;
+        const url = fetchUrlForActive(q, LIMIT, offset);
+        console.log(`Channel loadMore URL (${target}):`, url);
+
+        const res = await fetch(url);
+        console.log("Channel fetch status:", res.status);
+        if (!res.ok)
+          throw new Error(`Failed to fetch channel ${target.toLowerCase()}`);
+
+        const json = await res.json();
+        console.log(`Channel ${target} search response:`, json);
+        const data = json.data || [];
+
+        // Try to set user info if not set yet and a user object exists on returned item
+        if (!userInfo && data.length > 0) {
+          const u = data[0].user || null;
+          if (u) {
+            setUserInfo({
+              avatar_url: u.avatar_url || "",
+              display_name: u.display_name || u.username || channelName,
+              username: u.username || channelName,
+              profile_url:
+                u.profile_url ||
+                `https://giphy.com/${u.username || channelName}`,
+              banner_url: u.banner_url || "",
+              description: u.description || "",
+            });
+          }
+        }
+
+        const newItems = data.map((g) => ({
+          id: g.id,
+          title: g.title,
+          url:
+            g.images?.fixed_width?.url ||
+            g.images?.fixed_width_small?.url ||
+            g.images?.original?.url ||
+            "",
+          width: g.images?.fixed_width?.width,
+          height: g.images?.fixed_width?.height,
+        }));
+
+        if (isStickers) {
+          setStickers((prev) => [...prev, ...newItems]);
+          setStickerOffset((prev) => prev + LIMIT);
+          if (data.length < LIMIT) setStickerHasMore(false);
+        } else {
+          setGifs((prev) => [...prev, ...newItems]);
+          setGifOffset((prev) => prev + LIMIT);
+          if (data.length < LIMIT) setGifHasMore(false);
+        }
+      } catch (err) {
+        console.error("Error loading channel content:", err);
+        setError(`Failed to load ${active}`);
+        if (active === "Stickers") setStickerHasMore(false);
+        else setGifHasMore(false);
+      } finally {
+        setGifLoading(false);
+        setStickerLoading(false);
+        setInitialLoading(false);
+      }
+    },
+    [
+      API_KEY,
+      channelName,
+      active,
+      gifOffset,
+      stickerOffset,
+      gifHasMore,
+      stickerHasMore,
+      userInfo,
+    ]
+  );
+
+  // initial load when channelName changes: reset both GIFs and Stickers states and load first page for the active tab (GIFs by default)
   useEffect(() => {
-    // whenever channelName changes, reset state and load first page
     setGifs([]);
-    setOffset(0);
-    setHasMore(true);
+    setGifOffset(0);
+    setGifHasMore(true);
+    setGifLoading(false);
+
+    setStickers([]);
+    setStickerOffset(0);
+    setStickerHasMore(true);
+    setStickerLoading(false);
+
     setUserInfo(null);
     setError(null);
     setInitialLoading(true);
-    loadMore(); // load first page
+
+    // ensure active is GIFs on channel change - feel free to change if you want to keep last active across channels
+    setActive("GIFs");
+
+    // load first page for GIFs
+    loadMore({ tab: "GIFs" });
   }, [channelName]);
 
-  const loadMore = async () => {
-    if (!API_KEY) {
-      setError("Missing GIPHY API key");
-      setInitialLoading(false);
-      setLoading(false);
-      setHasMore(false);
-      return;
+  // when user switches tabs, if the target tab has no items yet, load its first page
+  useEffect(() => {
+    if (active === "Stickers" && stickers.length === 0 && !stickerLoading) {
+      loadMore({ tab: "Stickers" });
     }
-
-    if (!channelName) {
-      setError("No channel specified");
-      setInitialLoading(false);
-      setLoading(false);
-      return;
-    }
-
-    if (!hasMore) return;
-
-    setLoading(true);
-    try {
-      // use @username in q to fetch that user's GIFs per GIPHY docs
-      // note: no need to include '@' in the displayed username; channelName should be raw username
-      const q = encodeURIComponent(`${channelName}`);
-      //           https://api.giphy.com/v1/gifs/search?api_key=m9Bxt2i0wVxefxK8chnp8w2vMlP6eqKH&q=hbomax&limit=5
-      const url = `https://api.giphy.com/v1/gifs/search?api_key=${API_KEY}&q=${q}&limit=${LIMIT}`;
-      console.log("Channel loadMore URL:", url);
-      const res = await fetch(url);
-      console.log("Channel fetch status:", res.status);
-      if (!res.ok) throw new Error("Failed to fetch channel gifs");
-      const json = await res.json();
-      console.log("Channel search response:", json);
-      const data = json.data || [];
-
-      // If we don't yet have userInfo, try to extract from first returned GIF's user object
-      if (!userInfo && data.length > 0) {
-        const u = data[0].user || null;
-        if (u) {
-          setUserInfo({
-            avatar_url: u.avatar_url || "",
-            display_name: u.display_name || u.username || channelName,
-            username: u.username || channelName,
-            profile_url:
-              u.profile_url || `https://giphy.com/${u.username || channelName}`,
-            banner_url: u.banner_url || "",
-            description: u.description || "",
-          });
-        }
-      }
-
-      // map gifs to the minimal data needed
-      const newGifs = data.map((g) => ({
-        id: g.id,
-        title: g.title,
-        url:
-          g.images?.fixed_width?.url ||
-          g.images?.fixed_width_small?.url ||
-          g.images?.original?.url ||
-          "",
-        width: g.images?.fixed_width?.width,
-        height: g.images?.fixed_width?.height,
-      }));
-
-      setGifs((prev) => [...prev, ...newGifs]);
-      setOffset((prev) => prev + LIMIT);
-
-      if (data.length < LIMIT) {
-        setHasMore(false);
-      }
-    } catch (err) {
-      console.error("Error loading channel gifs:", err);
-      setError("Failed to load GIFs");
-      setHasMore(false);
-    } finally {
-      setLoading(false);
-      setInitialLoading(false);
-    }
-  };
+    // No need to load GIFs on switch since initial channel load already fetches them.
+  }, [active]);
 
   const onGifClick = (id) => {
     navigate(`/gif/${id}`);
+  };
+
+  const onStickerClick = (id) => {
+    navigate(`/sticker/${id}`);
+  };
+
+  const renderGrid = () => {
+    const isStickers = active === "Stickers";
+    const items = isStickers ? stickers : gifs;
+    const loading = isStickers ? stickerLoading : gifLoading;
+
+    return (
+      <>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-6">
+          {items.length === 0 && !loading && (
+            <div className="col-span-full text-center text-gray-400">
+              {isStickers
+                ? `No Stickers found for @${channelName}`
+                : `No GIFs found for @${channelName}`}
+            </div>
+          )}
+
+          {items.map((item) => (
+            <div
+              key={item.id}
+              role="button"
+              tabIndex={0}
+              onClick={() =>
+                isStickers ? onStickerClick(item.id) : onGifClick(item.id)
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  isStickers ? onStickerClick(item.id) : onGifClick(item.id);
+                }
+              }}
+              className="group relative rounded-md overflow-hidden bg-gray-800 flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
+              aria-label={`Open ${isStickers ? "sticker" : "gif"} ${
+                item.title || item.id
+              }`}
+            >
+              {item.url ? (
+                <img
+                  src={item.url}
+                  alt={item.title || (isStickers ? "sticker" : "gif")}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="text-gray-400 p-4">No preview</div>
+              )}
+
+              {/* Hover overlay: show title */}
+              <div className="absolute inset-0 flex items-end pointer-events-none">
+                <div className="w-full bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                  <div className="text-sm text-white font-medium truncate">
+                    {item.title || "Untitled"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Load more */}
+        <div className="flex justify-center mt-6 mb-6">
+          {error && <div className="text-red-400 mr-4">{error}</div>}
+          {(isStickers ? stickerHasMore : gifHasMore) ? (
+            <button
+              onClick={() => loadMore({ tab: active })}
+              disabled={isStickers ? stickerLoading : gifLoading}
+              className="px-6 py-2 bg-purple-600 text-white rounded-md hover:opacity-90 disabled:opacity-50"
+            >
+              {(isStickers ? stickerLoading : gifLoading)
+                ? `Loading...`
+                : `Load more ${isStickers ? "Stickers" : "GIFs"}`}
+            </button>
+          ) : (
+            <div className="text-gray-400">
+              No more {isStickers ? "Stickers" : "GIFs"}
+            </div>
+          )}
+        </div>
+      </>
+    );
   };
 
   if (initialLoading) {
@@ -222,64 +355,8 @@ function Channel() {
               </div>
             </div>
 
-            {/* gifs grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-6">
-              {gifs.length === 0 && !loading && (
-                <div className="col-span-full text-center text-gray-400">
-                  No GIFs found for @{channelName}
-                </div>
-              )}
-
-              {gifs.map((gif) => (
-                <div
-                  key={gif.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => onGifClick(gif.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") onGifClick(gif.id);
-                  }}
-                  className="group relative rounded-md overflow-hidden bg-gray-800 flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  aria-label={`Open gif ${gif.title || gif.id}`}
-                >
-                  {gif.url ? (
-                    <img
-                      src={gif.url}
-                      alt={gif.title || "gif"}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="text-gray-400 p-4">No preview</div>
-                  )}
-
-                  {/* Hover overlay: show title */}
-                  <div className="absolute inset-0 flex items-end pointer-events-none">
-                    <div className="w-full bg-gradient-to-t from-black/70 to-transparent px-2 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                      <div className="text-sm text-white font-medium truncate">
-                        {gif.title || "Untitled"}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Load more */}
-            <div className="flex justify-center mt-6 mb-6">
-              {error && <div className="text-red-400 mr-4">{error}</div>}
-              {hasMore ? (
-                <button
-                  onClick={loadMore}
-                  disabled={loading}
-                  className="px-6 py-2 bg-purple-600 text-white rounded-md hover:opacity-90 disabled:opacity-50"
-                >
-                  {loading ? "Loading..." : "Load more GIFs"}
-                </button>
-              ) : (
-                <div className="text-gray-400">No more GIFs</div>
-              )}
-            </div>
+            {/* grid (GIFs or Stickers depending on active) */}
+            {renderGrid()}
           </div>
         </div>
         <div className="hidden md:block" />
