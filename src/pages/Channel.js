@@ -17,6 +17,23 @@ function Channel() {
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const tabs = ["GIFs", "Stickers"];
+  const [active, setActive] = useState("GIFs"); // GIFs default
+
+  const renderContent = () => {
+    switch (active) {
+      case "GIFs":
+        // display gifs grid
+        return;
+      case "Stickers":
+        // display stickers grid
+        return;
+      default:
+        // display gifs grid
+        return;
+    }
+  };
+
   useEffect(() => {
     // whenever channelName changes, reset state and load first page
     setGifs([]);
@@ -176,6 +193,33 @@ function Channel() {
                   No user information available
                 </div>
               )}
+            </div>
+
+            <div className="flex items-center justify-between mt-3 mb-4">
+              <div className="flex items-center"></div>
+
+              {/* Tabs */}
+              <div>
+                <div className="flex gap-3 bg-gray-500 rounded-full">
+                  {tabs.map((tab) => {
+                    const isActive = tab === active;
+                    return (
+                      <button
+                        key={tab}
+                        onClick={() => setActive(tab)}
+                        className={
+                          "px-6 py-2 text-sm font-medium transition-all focus:outline-none " +
+                          (isActive && "bg-purple-600 text-white rounded-full")
+                        }
+                        aria-pressed={isActive}
+                        aria-label={`Show ${tab}`}
+                      >
+                        {tab}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             {/* gifs grid */}
