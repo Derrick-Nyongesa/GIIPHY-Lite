@@ -1,11 +1,34 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function Search() {
+  const navigate = useNavigate();
+  const params = useParams();
+  const initialQuery = params?.query ? decodeURIComponent(params.query) : "";
+
+  const [q, setQ] = useState(initialQuery);
+
+  useEffect(() => {
+    setQ(initialQuery);
+  }, [initialQuery]);
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const trimmed = (q || "").trim();
+    if (!trimmed) return; // ignore empty search
+
+    // navigate to /search/:query
+    const encoded = encodeURIComponent(trimmed);
+    navigate(`/search/${encoded}`);
+  };
+
   return (
-    <form>
+    <form onSubmit={onSubmit}>
       <div className="col-span-full">
         <div className="relative">
           <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
             type="text"
             placeholder="Search all GIFs and Stickers"
             aria-label="Search GIFs and Stickers"
