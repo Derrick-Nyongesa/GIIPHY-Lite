@@ -43,8 +43,8 @@ export default function Search() {
             }}
             className={
               "block w-full rounded-l-md rounded-r-none border-0 py-3 text-gray-800 shadow-sm " +
-              "ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 placeholder:text-lg " +
-              "sm:text-sm sm:leading-6"
+              "ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 placeholder:text-2xl " +
+              "text-xl leading-6"
             }
           />
 
