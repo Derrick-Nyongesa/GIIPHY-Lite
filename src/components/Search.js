@@ -42,9 +42,9 @@ export default function Search() {
               borderRadius: "0.3rem",
             }}
             className={
-              "block w-full rounded-l-md rounded-r-none border-0 py-3 text-gray-800 shadow-sm " +
-              "ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 placeholder:text-2xl " +
-              "text-xl leading-6"
+              "block w-full rounded-l-md rounded-r-none border-0 py-4 pl-4 text-gray-800 shadow-sm " +
+              "ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 placeholder:text-xl " +
+              "text-2xl leading-normal focus:ring-2 focus:ring-pink-500 focus:outline-none"
             }
           />
 
