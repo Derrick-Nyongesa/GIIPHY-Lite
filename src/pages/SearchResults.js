@@ -53,19 +53,6 @@ function SearchResults() {
     return Object.values(found);
   };
 
-  const mergeChannels = (newChannels) => {
-    // dedupe against existing channels by username (case-insensitive)
-    const existing = {};
-    channels.forEach((c) => {
-      existing[c.username?.toLowerCase()] = c;
-    });
-    newChannels.forEach((nc) => {
-      const key = nc.username?.toLowerCase();
-      if (!existing[key]) existing[key] = nc;
-    });
-    setChannels(Object.values(existing));
-  };
-
   const mapGifItem = (g) => ({
     id: g.id,
     title: g.title,
@@ -116,7 +103,24 @@ function SearchResults() {
 
         // extract channels and merge
         const newChannels = extractChannelsFromData(data);
-        if (newChannels.length > 0) mergeChannels(newChannels);
+
+        if (offset === 0) {
+          // first page for this query: replace channels entirely
+          setChannels(newChannels);
+        } else if (newChannels.length > 0) {
+          // subsequent pages: merge using functional update to avoid stale closures
+          setChannels((prev) => {
+            const merged = {};
+            prev.forEach((c) => {
+              merged[c.username?.toLowerCase()] = c;
+            });
+            newChannels.forEach((nc) => {
+              merged[nc.username?.toLowerCase()] =
+                merged[nc.username?.toLowerCase()] || nc;
+            });
+            return Object.values(merged);
+          });
+        }
 
         if (data.length < LIMIT) {
           setHasMore(false);
