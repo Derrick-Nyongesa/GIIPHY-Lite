@@ -20,6 +20,9 @@ export default function Search() {
     // navigate to /search/:query
     const encoded = encodeURIComponent(trimmed);
     navigate(`/search/${encoded}`);
+
+    // clear input after navigating
+    setQ("");
   };
 
   return (
