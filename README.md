@@ -1,4 +1,3 @@
-```md
 # 🎉 GIPHY_lite — A Lightweight Giphy Explorer
 
 GIPHY_lite is a sleek and simple web app built with **React** that allows users to:
@@ -25,17 +24,18 @@ This project uses the **GIPHY API** to deliver a blazing-fast and visually fun b
 
 ## 🛠️ Tech Stack
 
-| Technology                      | Purpose                  |
-| ------------------------------- | ------------------------ |
-| ⚛️ React                        | Frontend framework       |
-| 🌐 Axios / Fetch                | API handling             |
-| 🎨 Tailwind CSS (if applicable) | UI styling               |
-| 🔑 GIPHY API                    | GIF/sticker data         |
-| 🚀 React Router                 | Navigation between pages |
+| Technology       | Purpose                  |
+| ---------------- | ------------------------ |
+| ⚛️ React         | Frontend framework       |
+| 🌐 Axios / Fetch | API handling             |
+| 🎨 Tailwind CSS  | UI styling               |
+| 🔑 GIPHY API     | GIF/sticker data         |
+| 🚀 React Router  | Navigation between pages |
 
 ---
 
 ## 📂 Folder Structure (simplified)
+
 ```
 
 GIPHY_lite/
@@ -61,7 +61,7 @@ Before running the app, create a `.env` file in the project root and add your **
 
 VITE_GIPHY_API_KEY=your_giphy_api_key_here
 
-````
+```
 
 > 🛡️ Note: Make sure `.env` is included in your `.gitignore` file (already done in this project).
 
@@ -70,10 +70,11 @@ VITE_GIPHY_API_KEY=your_giphy_api_key_here
 ## 🚀 Getting Started
 
 ### 1️⃣ Clone the repository
+
 ```bash
 git clone https://github.com/your-username/GIPHY_lite.git
 cd GIPHY_lite
-````
+```
 
 ### 2️⃣ Install dependencies
 
@@ -146,4 +147,5 @@ Would you like me to:
 ✅ Insert screenshots section placeholders with keywords?
 ✅ Auto-generate a `.env.example` file section?
 ✅ Add instructions for deployment on Vercel or Netlify? 🎯
+
 ```
