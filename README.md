@@ -118,10 +118,3 @@ This project is for educational and personal learning purposes and follows the u
 - 🎨 Inspired by modern GIF search experiences.
 
 ---
-
-### ✨ Made with 💻, 🎨, and 🎉
-
-```
-
-
-```
