@@ -1,70 +1,149 @@
-# Getting Started with Create React App
+```md
+# 🎉 GIPHY_lite — A Lightweight Giphy Explorer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+GIPHY_lite is a sleek and simple web app built with **React** that allows users to:
+✅ Explore **Trending GIFs** and **Stickers**  
+✅ **Search** for GIFs and their **Channels**  
+✅ View detailed info for a specific GIF or Sticker  
+✅ **Download** or **Copy** GIFs & Stickers quickly
 
-## Available Scripts
+This project uses the **GIPHY API** to deliver a blazing-fast and visually fun browsing experience.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## ✨ Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+| Feature                 | Description                                                |
+| ----------------------- | ---------------------------------------------------------- |
+| 🔥 Trending Content     | View the hottest GIFs and Stickers trending on Giphy       |
+| 🔍 Search Functionality | Search GIFs and their associated channels                  |
+| 📄 Detailed View        | Inspect GIF details such as title, username, source & more |
+| 📥 Download / 📋 Copy   | Download GIFs or copy them via a single click              |
+| 📱 Responsive UI        | Optimized for both desktop and mobile users                |
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 🛠️ Tech Stack
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+| Technology                      | Purpose                  |
+| ------------------------------- | ------------------------ |
+| ⚛️ React                        | Frontend framework       |
+| 🌐 Axios / Fetch                | API handling             |
+| 🎨 Tailwind CSS (if applicable) | UI styling               |
+| 🔑 GIPHY API                    | GIF/sticker data         |
+| 🚀 React Router                 | Navigation between pages |
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 📂 Folder Structure (simplified)
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+GIPHY_lite/
+├── src/
+│ ├── components/ # UI Components
+│ ├── pages/ # Main views (Trending, Search, Details)
+│ ├── services/ # API handlers
+│ ├── App.jsx # App setup
+│ └── index.jsx # Entry point
+├── .env # Giphy API Key (ignored by Git)
+├── .gitignore
+└── README.md
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🔑 Environment Setup
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Before running the app, create a `.env` file in the project root and add your **GIPHY API key** like this:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+VITE_GIPHY_API_KEY=your_giphy_api_key_here
 
-## Learn More
+````
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+> 🛡️ Note: Make sure `.env` is included in your `.gitignore` file (already done in this project).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## 🚀 Getting Started
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 1️⃣ Clone the repository
+```bash
+git clone https://github.com/your-username/GIPHY_lite.git
+cd GIPHY_lite
+````
 
-### Analyzing the Bundle Size
+### 2️⃣ Install dependencies
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+npm install
+# or
+yarn install
+```
 
-### Making a Progressive Web App
+### 3️⃣ Start the development server
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+npm run dev
+```
 
-### Advanced Configuration
+### 4️⃣ Open in your browser
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Visit 👉 `http://localhost:5173/` (or whichever port Vite assigns)
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## 🖥️ How It Works (User Guide)
 
-### `npm run build` fails to minify
+| Page            | Description                                                       |
+| --------------- | ----------------------------------------------------------------- |
+| 🏠 Trending     | Displays top trending GIFs & Stickers                             |
+| 🔍 Search       | Lets you look up GIFs and explore related channels                |
+| 📄 Details View | Click on any GIF to view its description, user, and share options |
+| 📥 Download     | Save GIFs locally with a single click                             |
+| 📋 Copy         | Quickly copy the media link to your clipboard                     |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+## 📌 Future Enhancements (Planned)
+
+- ❤️ Add to Favorites / Watchlist
+- 📺 Channel pages with full content
+- 📤 Share to social platforms
+- 🌙 Dark / Light Mode toggle
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to fork the repository and submit a pull request.
+
+---
+
+## 📜 License
+
+This project is for educational and personal learning purposes and follows the usage guidelines of the GIPHY API.
+
+---
+
+## 🙌 Acknowledgements
+
+- 💚 Thanks to [GIPHY Developers](https://developers.giphy.com/) for their awesome free API.
+- 🎨 Inspired by modern GIF search experiences.
+
+---
+
+### ✨ Made with 💻, 🎨, and 🎉
+
+```
+
+---
+
+Would you like me to:
+✅ Add badges (e.g., React, License, API)?
+✅ Insert screenshots section placeholders with keywords?
+✅ Auto-generate a `.env.example` file section?
+✅ Add instructions for deployment on Vercel or Netlify? 🎯
+```
