@@ -34,23 +34,6 @@ This project uses the **GIPHY API** to deliver a blazing-fast and visually fun b
 
 ---
 
-## 📂 Folder Structure (simplified)
-
-```
-
-GIPHY_lite/
-├── src/
-│ ├── components/ # UI Components
-│ ├── pages/ # Main views (Trending, Search, Details)
-│ ├── services/ # API handlers
-│ ├── App.jsx # App setup
-│ └── index.jsx # Entry point
-├── .env # Giphy API Key (ignored by Git)
-├── .gitignore
-└── README.md
-
-```
-
 ---
 
 ## 🔑 Environment Setup
@@ -140,12 +123,5 @@ This project is for educational and personal learning purposes and follows the u
 
 ```
 
----
-
-Would you like me to:
-✅ Add badges (e.g., React, License, API)?
-✅ Insert screenshots section placeholders with keywords?
-✅ Auto-generate a `.env.example` file section?
-✅ Add instructions for deployment on Vercel or Netlify? 🎯
 
 ```
