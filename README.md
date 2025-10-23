@@ -59,7 +59,7 @@ Before running the app, create a `.env` file in the project root and add your **
 
 ```
 
-VITE_GIPHY_API_KEY=your_giphy_api_key_here
+REACT_APP_GIPHY_API_KEY=your_giphy_api_key_here
 
 ```
 
@@ -72,8 +72,8 @@ VITE_GIPHY_API_KEY=your_giphy_api_key_here
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/your-username/GIPHY_lite.git
-cd GIPHY_lite
+git clone https://github.com/Derrick-Nyongesa/GIIPHY-Lite.git
+cd GIPHY-Lite
 ```
 
 ### 2️⃣ Install dependencies
@@ -92,7 +92,7 @@ npm run dev
 
 ### 4️⃣ Open in your browser
 
-Visit 👉 `http://localhost:5173/` (or whichever port Vite assigns)
+Visit 👉 `http://localhost:3000/` (or whichever port Vite assigns)
 
 ---
 
